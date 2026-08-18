@@ -42,12 +42,6 @@ dsh plugin --profile web add .
 dsh plugin --profile web add ./dsh-liquid-glass-fluid-background-0.1.0.tgz
 ```
 
-把本目录推到 GitHub 后（必须包含 `lib/`）：
-
-```sh
-dsh plugin --profile web add github:<你的账号>/dsh-liquid-glass-fluid-background
-```
-
 然后启动 Web：
 
 ```sh
@@ -65,19 +59,6 @@ dsh --profile web
 四种自定义颜色会改写 Isolation 色场：
 
 ![自定义流体颜色后的对话页](images/背景特效自定义颜色.png)
-
-## 上传到 GitHub
-
-```sh
-cd D:\Code\TypeScript\dsh-liquid-glass-fluid-background
-git init
-git add .
-git commit -m "feat: liquid-glass overlay and Isolation fluid backdrop"
-git remote add origin https://github.com/<你的账号>/dsh-liquid-glass-fluid-background.git
-git push -u origin HEAD
-```
-
-请提交 `lib/` 和 `images/`。只有 `src/` 的 git 安装无法加载。
 
 ## 卸载
 

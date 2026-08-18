@@ -42,12 +42,6 @@ Or install the packed tarball in this folder:
 dsh plugin --profile web add ./dsh-liquid-glass-fluid-background-0.1.0.tgz
 ```
 
-After you push this folder to GitHub (include `lib/`):
-
-```sh
-dsh plugin --profile web add github:<you>/dsh-liquid-glass-fluid-background
-```
-
 Then start the web surface:
 
 ```sh
@@ -65,19 +59,6 @@ Fluid presets (`silk`, `hsv`, `wave`, `aurora`, `plasma`, `smoke`):
 Four custom colors rewrite the Isolation field:
 
 ![Conversation after custom fluid colors](images/背景特效自定义颜色.png)
-
-## Upload to GitHub
-
-```sh
-cd D:\Code\TypeScript\dsh-liquid-glass-fluid-background
-git init
-git add .
-git commit -m "feat: liquid-glass overlay and Isolation fluid backdrop"
-git remote add origin https://github.com/<you>/dsh-liquid-glass-fluid-background.git
-git push -u origin HEAD
-```
-
-Commit `lib/` and `images/`. A git install that only has `src/` will not load.
 
 ## Remove
 
