@@ -1,0 +1,60 @@
+/** `settings.liquidGlass` namespace dictionaries (the overlay settings row's copy). */
+
+/** Simplified Chinese dictionary (the key-set source of truth). */
+export const zh = {
+  'title': '液态玻璃',
+  'description': '圆角边缘折射并色散背景光，带高光与分层阴影；关闭后立即还原。',
+  'blur': '模糊',
+  'saturate': '饱和',
+  'displace': '折射强度',
+  'aberration': '色散',
+  'radius': '圆角',
+  'gap': '栏间距',
+  'canvas': '主界面背景',
+  'canvasHint': '颜色、渐变或图片 URL，留空则跟随主题',
+  'fluidTitle': '流体背景',
+  'fluidDescription': '全屏着色器流体，不依赖液态玻璃；关闭后立即还原。',
+  'preset': '特效',
+  'silk': '丝绸',
+  'hsv': '柔和混色',
+  'wave': '光波',
+  'aurora': '极光',
+  'plasma': '等离子',
+  'smoke': '烟雾',
+  'fluidSpeed': '速度',
+  'color1': '颜色 1',
+  'color2': '颜色 2',
+  'color3': '颜色 3',
+  'color4': '颜色 4',
+} satisfies Record<string, string>
+
+/** The settings.liquidGlass namespace key union. */
+export type LiquidGlassKey = keyof typeof zh
+
+/** English dictionary, checked complete against the zh key set. */
+export const en = {
+  'title': 'Liquid Glass',
+  'description': 'Liquid glass: the rounded rim refracts and disperses the background, with specular highlights and layered shadows. Turning it off restores the original look immediately.',
+  'blur': 'Blur',
+  'saturate': 'Saturation',
+  'displace': 'Refraction',
+  'aberration': 'Aberration',
+  'radius': 'Corner radius',
+  'gap': 'Column gap',
+  'canvas': 'Main background',
+  'canvasHint': 'A color, gradient, or image URL. Leave empty to follow the theme.',
+  'fluidTitle': 'Fluid background',
+  'fluidDescription': 'A fullscreen shader fluid. It does not require Liquid Glass. Turning it off restores the original look immediately.',
+  'preset': 'Effect',
+  'silk': 'Silk',
+  'hsv': 'Soft blend',
+  'wave': 'Light wave',
+  'aurora': 'Aurora',
+  'plasma': 'Plasma',
+  'smoke': 'Smoke',
+  'fluidSpeed': 'Speed',
+  'color1': 'Color 1',
+  'color2': 'Color 2',
+  'color3': 'Color 3',
+  'color4': 'Color 4',
+} satisfies Record<LiquidGlassKey, string>

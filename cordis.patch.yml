@@ -1,0 +1,6 @@
+# Installs the liquid-glass overlay + Isolation fluid backdrop into a web
+# profile. The row waits on theme / settings / slots through ordinary inject,
+# so appending after the web-app roster is enough.
+- insert:
+    - id: ui-theme-liquid-glass
+      name: dsh-liquid-glass-fluid-background
