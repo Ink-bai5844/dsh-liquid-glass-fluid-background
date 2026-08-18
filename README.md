@@ -72,3 +72,8 @@ dsh plugin --profile web remove dsh-liquid-glass-fluid-background
 - Browser half: token overlay, frost stylesheet, SVG lens, and the Isolation WebGL (or CSS-gradient) canvas.
 
 Peer packages come from the dsh web profile. This bundle does not republish `@deepseek-ai/dsh-*`.
+
+## Acknowledgements
+
+- [liquid-glass-react](https://github.com/rdev/liquid-glass-react) — the SVG displacement and chromatic-aberration glass filter this overlay ports.
+- [Isolation](https://github.com/Storyteller-Studios/Isolation) — the HLSL color-field shader this plugin ports to WebGL for the fluid backdrop.

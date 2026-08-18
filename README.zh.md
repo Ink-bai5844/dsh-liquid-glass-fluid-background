@@ -72,3 +72,8 @@ dsh plugin --profile web remove dsh-liquid-glass-fluid-background
 - 浏览器半：token 叠加层、霜化样式、SVG 透镜，以及 Isolation WebGL（或 CSS 渐变）画布。
 
 `@deepseek-ai/dsh-*` 由 web profile 提供，本组合包不重新发布它们。
+
+## 致谢
+
+- [liquid-glass-react](https://github.com/rdev/liquid-glass-react) — 本叠加层移植的 SVG 位移与色散玻璃滤镜。
+- [Isolation](https://github.com/Storyteller-Studios/Isolation) — 本插件将其 HLSL 色场着色器移植到 WebGL，用作流体背景。
