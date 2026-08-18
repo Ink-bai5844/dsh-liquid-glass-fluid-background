@@ -6,6 +6,26 @@ Installable DeepSeek Harness **bundle** for the web GUI: optional iOS-style liqu
 
 This directory is a ready-to-upload plugin checkout. `lib/` is already built. Do not treat `src/` as the install entry.
 
+![Blank home with liquid glass and a fluid wallpaper](images/主页.png)
+
+## Preview
+
+Conversation page (dark, glass on, fluid wallpaper):
+
+![Conversation with glass chrome over a purple fluid field](images/对话页.png)
+
+Light mode keeps the same overlay on the built-in light palette:
+
+![Conversation in light mode](images/浅色模式.png)
+
+A static `http(s)` image as the canvas (fluid off):
+
+![Conversation over a custom background image](images/自定义背景图.png)
+
+Menu chrome picks up the backdrop through the glass rim:
+
+![Workspace-permission menu showing rim refraction](images/按钮折射效果.png)
+
 ## Install
 
 Requires a working `dsh` CLI and the **web** profile.
@@ -36,6 +56,16 @@ dsh --profile web
 
 Open **Settings → General**. Turn on **Liquid Glass** and/or **Fluid background**. Fluid does not require glass. When both are on, fluid is the wallpaper.
 
+![General settings: glass tuners and the fluid switch](images/插件设置页.png)
+
+Fluid presets (`silk`, `hsv`, `wave`, `aurora`, `plasma`, `smoke`):
+
+![Fluid preset menu](images/背景特效选择.png)
+
+Four custom colors rewrite the Isolation field:
+
+![Conversation after custom fluid colors](images/背景特效自定义颜色.png)
+
 ## Upload to GitHub
 
 ```sh
@@ -47,7 +77,7 @@ git remote add origin https://github.com/<you>/dsh-liquid-glass-fluid-background
 git push -u origin HEAD
 ```
 
-Commit `lib/`. A git install that only has `src/` will not load.
+Commit `lib/` and `images/`. A git install that only has `src/` will not load.
 
 ## Remove
 
