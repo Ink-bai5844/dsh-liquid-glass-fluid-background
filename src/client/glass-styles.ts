@@ -40,6 +40,7 @@ const composerCard = `:is(${loc('composerSeat')} ${loc('card')}, [data-composer-
 const sendButton = `${composerCard} ${loc('primary')}`
 const commandButton = `${composerCard} ${loc('add')}`
 const composerChips = `:is(${sendButton}, ${commandButton})`
+const modelMenu = `${composerCard} ${loc('menu')}:has(${loc('cell')}, ${loc('option')})`
 const previewBadge = loc('previewBadge')
 const glassPills = `:is(${sendButton}, ${commandButton}, ${previewBadge})`
 const dialog = loc('dialog')
@@ -419,6 +420,10 @@ ${under(composerCard)} {
 ${under(composerCard)}::before {
   -webkit-backdrop-filter: ${COMPOSER_WARP};
   backdrop-filter: ${COMPOSER_WARP};
+}
+
+${under(modelMenu)} {
+  z-index: 110;
 }
 
 ${under(glassPills)} {
