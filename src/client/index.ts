@@ -37,7 +37,10 @@ export type { LiquidGlassRowState } from './settings-store.ts'
 export type { LiquidGlassKey } from './locales.ts'
 export type { FluidPreset, GlassSettings } from '../glass-settings.ts'
 export { FLUID_ATTRIBUTE } from './fluid-runtime.ts'
-export { MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE } from './motion-runtime.ts'
+export {
+  MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE, MOTION_PANE_ATTRIBUTE,
+  MOTION_PANE_SLIDE_ATTRIBUTE, MOTION_PANE_TRACK_ATTRIBUTE,
+} from './motion-runtime.ts'
 
 /** Namespace owning this feature's settings-row copy. */
 export const SETTINGS_NS = 'settings.liquidGlass'

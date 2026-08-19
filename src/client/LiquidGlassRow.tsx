@@ -151,15 +151,18 @@ function MotionTuners({
   setField,
   openMs,
   closeMs,
+  fadeMs,
 }: {
   t: LiquidGlassRowComponentProps['t']
   setField: LiquidGlassRowInjected['setField']
   openMs: number
   closeMs: number
+  fadeMs: number
 }) {
   const rows = [
     { field: 'motionOpenMs' as const, label: 'motionOpen' as const, value: openMs },
     { field: 'motionCloseMs' as const, label: 'motionClose' as const, value: closeMs },
+    { field: 'motionFadeMs' as const, label: 'motionFade' as const, value: fadeMs },
   ]
   return (
     <div className={css.tuners}>
@@ -247,6 +250,7 @@ export function LiquidGlassRow({ t, setEnabled, setField, useStore }: LiquidGlas
   const motionEnabled = useStore(s => s.motionEnabled)
   const motionOpenMs = useStore(s => s.motionOpenMs)
   const motionCloseMs = useStore(s => s.motionCloseMs)
+  const motionFadeMs = useStore(s => s.motionFadeMs)
   const values = { blurPx, saturatePct, displace, aberration, radiusPx, gapPx }
   return (
     <div className={css.block}>
@@ -284,6 +288,7 @@ export function LiquidGlassRow({ t, setEnabled, setField, useStore }: LiquidGlas
         setField={setField}
         openMs={motionOpenMs}
         closeMs={motionCloseMs}
+        fadeMs={motionFadeMs}
       /> : null}
     </div>
   )

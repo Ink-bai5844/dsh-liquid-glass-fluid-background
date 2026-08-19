@@ -5,13 +5,17 @@
  * trigger, then faded so the already-settled glass shows through.
  */
 
-import { DEFAULT_MOTION_CLOSE_MS, DEFAULT_MOTION_OPEN_MS } from '../glass-settings.ts'
 import {
-  MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE, MOTION_STYLES,
+  DEFAULT_MOTION_CLOSE_MS, DEFAULT_MOTION_FADE_MS, DEFAULT_MOTION_OPEN_MS, MOTION_MS_MAX,
+} from '../glass-settings.ts'
+import {
+  MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE, MOTION_PANE_ATTRIBUTE,
+  MOTION_PANE_SLIDE_ATTRIBUTE, MOTION_PANE_TRACK_ATTRIBUTE, MOTION_STYLES,
 } from './motion-styles.ts'
 
 export {
-  MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE, MOTION_STYLES,
+  MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE, MOTION_PANE_ATTRIBUTE,
+  MOTION_PANE_SLIDE_ATTRIBUTE, MOTION_PANE_TRACK_ATTRIBUTE, MOTION_STYLES,
 } from './motion-styles.ts'
 
 const LOCAL_TOKEN = (local: string): ((cls: string) => boolean) =>
@@ -19,16 +23,20 @@ const LOCAL_TOKEN = (local: string): ((cls: string) => boolean) =>
 
 const lastLayout = new WeakMap<HTMLElement, { rect: DOMRect; origin: string }>()
 
+/** Last inner children of an open plate, for a later pane slide. */
+const lastPane = new WeakMap<HTMLElement, { kind: 'root' | 'list' | 'other'; signature: string; clones: HTMLElement[] }>()
+
 /**
- * Whether a node is a composer popover this overlay animates.
+ * Whether a node is a popover or dialog this overlay animates.
  * @param node - a DOM node, usually a MutationObserver removed child.
- * @returns true when the node is a menu, submenu, Menu list, or context panel.
+ * @returns true when the node is a menu, submenu, Menu list, context panel, or settings dialog.
  */
 export function isMotionSurface(node: Node): node is HTMLElement {
   if (
     !(node instanceof HTMLElement)
     || node.hasAttribute(MOTION_EXIT_ATTRIBUTE)
     || node.hasAttribute(MOTION_ENTER_ATTRIBUTE)
+    || node.hasAttribute(MOTION_PANE_ATTRIBUTE)
   ) return false
   const classes = [...node.classList]
   const has = (local: string): boolean => classes.some(LOCAL_TOKEN(local))
@@ -36,7 +44,14 @@ export function isMotionSurface(node: Node): node is HTMLElement {
   if (has('list') && node.querySelector('[class*="_itemWrap_"], [class*="_itemWrap "], [class$="_itemWrap"]') !== null) {
     return true
   }
-  return has('panel') && node.querySelector('[class*="_percent_"], [class*="_percent "], [class$="_percent"]') !== null
+  if (!has('panel')) return false
+  if (node.getAttribute('role') === 'dialog') return true
+  return node.querySelector('[class*="_percent_"], [class*="_percent "], [class$="_percent"]') !== null
+}
+
+/** Whether inner childList changes on this plate may play a Model/Effort pane slide. */
+function allowsPaneSlide(el: HTMLElement): boolean {
+  return ![...el.classList].some(LOCAL_TOKEN('panel'))
 }
 
 /**
@@ -150,7 +165,7 @@ export function findTrigger(menu: HTMLElement, menuRect?: DOMRect): HTMLElement 
       if (isTriggerCandidate(child, menu)) return child
     }
   }
-  let ancestor = parent
+  let ancestor: HTMLElement | null = parent
   let fallback: HTMLElement | null = null
   while (ancestor !== null && !isDocumentRoot(ancestor)) {
     for (const candidate of ancestor.querySelectorAll('[aria-expanded="true"]')) {
@@ -209,6 +224,8 @@ export interface MotionPaintOptions {
   openMs?: number
   /** Close duration in milliseconds. */
   closeMs?: number
+  /** Fade-out duration after the open grow or pane slide settles. */
+  fadeMs?: number
 }
 
 /** Optional hooks for {@link installMotion}. */
@@ -231,6 +248,70 @@ export interface MotionEnterHandle {
 
 function afterPaint(frame: (callback: () => void) => number, callback: () => void): void {
   frame(() => { frame(callback) })
+}
+
+/** Inner pane slides stay readable: twice the open duration, at least 280ms. */
+function paneSlideMs(openMs: number): number {
+  return Math.min(MOTION_MS_MAX, Math.max(280, Math.round(openMs * 2)))
+}
+
+/** Classify a plate's inner content as the Model/Effort root, a drilled list, or other. */
+function paneKind(el: HTMLElement): 'root' | 'list' | 'other' {
+  if (el.querySelector('[class*="_option_"], [class*="_option "], [class$="_option"]') !== null) {
+    return 'list'
+  }
+  if (el.querySelector('[class*="_cell_"], [class*="_cell "], [class$="_cell"]') !== null) {
+    return 'root'
+  }
+  return 'other'
+}
+
+function paneSignature(el: HTMLElement): string {
+  return `${paneKind(el)}:${String(el.childElementCount)}:${[...el.children].map((child) => child.className).join('|')}`
+}
+
+function snapshotPane(el: HTMLElement): void {
+  lastPane.set(el, {
+    kind: paneKind(el),
+    signature: paneSignature(el),
+    clones: [...el.children]
+      .filter((child): child is HTMLElement => child instanceof HTMLElement)
+      .map((child) => child.cloneNode(true) as HTMLElement),
+  })
+}
+
+/** The motion surface that contains `node`, if any. */
+function enclosingSurface(node: Node): HTMLElement | null {
+  let current: Node | null = node
+  while (current !== null) {
+    if (isMotionSurface(current)) return current
+    current = current.parentNode
+  }
+  return null
+}
+
+/**
+ * Copy the plate's padding, border, and column flex onto an overlay so
+ * cloned children sit on the same content box as the live menu.
+ * @param target - the overlay viewport.
+ * @param source - the live plate.
+ */
+function applyPlateInsets(target: HTMLElement, source: HTMLElement): void {
+  const style = getComputedStyle(source)
+  target.style.paddingTop = style.paddingTop
+  target.style.paddingRight = style.paddingRight
+  target.style.paddingBottom = style.paddingBottom
+  target.style.paddingLeft = style.paddingLeft
+  target.style.borderTopWidth = style.borderTopWidth
+  target.style.borderRightWidth = style.borderRightWidth
+  target.style.borderBottomWidth = style.borderBottomWidth
+  target.style.borderLeftWidth = style.borderLeftWidth
+  target.style.borderStyle = style.borderStyle === 'none' ? 'none' : 'solid'
+  target.style.borderColor = 'transparent'
+  target.style.display = 'flex'
+  target.style.flexDirection = 'column'
+  target.style.color = style.color
+  target.style.font = style.font
 }
 
 function createGhost(rect: DOMRect, origin: string, attr: string): HTMLElement {
@@ -290,8 +371,10 @@ export function playMotionEnter(
     }
     const origin = resolveOrigin(node, rect)
     lastLayout.set(node, { rect, origin })
+    snapshotPane(node)
     ghost = createGhost(rect, origin, MOTION_ENTER_ATTRIBUTE)
     const openMs = paint.openMs ?? DEFAULT_MOTION_OPEN_MS
+    const fadeDuration = paint.fadeMs ?? DEFAULT_MOTION_FADE_MS
     const grow = animate(ghost, [
       { transform: 'scale(0.72, 0.55)' },
       { transform: 'none' },
@@ -304,7 +387,7 @@ export function playMotionEnter(
         const fade = animate(ghost, [
           { opacity: 1 },
           { opacity: 0 },
-        ], { duration: Math.max(40, Math.round(openMs * 0.75)), fill: 'forwards' })
+        ], { duration: fadeDuration, fill: 'forwards' })
         phase = fade
         fade.addEventListener('finish', finish)
         fade.addEventListener('cancel', finish)
@@ -354,13 +437,90 @@ export function playMotionExit(
 }
 
 /**
+ * Cover a live plate with a 200%-wide CSS track (`translateX(-50%)` on
+ * `data-depth=1`) after its inner children swapped. When the track
+ * settles, the live glass is shown and the overlay fades out — the same
+ * tail as {@link playMotionEnter}. The host is not transformed.
+ * @param node - the live plate, still in the document.
+ * @param outgoing - clones of the children that just left.
+ * @param direction - `forward` starts at depth 0; `back` starts at depth 1.
+ * @param paint - frame, measure, and duration hooks.
+ * @returns the viewport, or undefined when the plate has no size.
+ */
+export function playPaneSlide(
+  node: HTMLElement,
+  outgoing: readonly HTMLElement[],
+  direction: 'forward' | 'back',
+  paint: MotionPaintOptions = {},
+): HTMLElement | undefined {
+  const frame = paint.frame ?? ((callback) => requestAnimationFrame(callback))
+  const measure = paint.measure ?? ((el) => el.getBoundingClientRect())
+  const rect = measure(node)
+  if (rect.width < 2 || rect.height < 2) return undefined
+  const previous = node.style.visibility
+  node.style.visibility = 'hidden'
+  const openMs = paint.openMs ?? DEFAULT_MOTION_OPEN_MS
+  const viewport = createGhost(rect, 'top left', MOTION_PANE_ATTRIBUTE)
+  viewport.style.overflow = 'hidden'
+  viewport.style.opacity = '1'
+  viewport.style.transitionProperty = 'opacity'
+  viewport.style.transitionDuration = `${String(paint.fadeMs ?? DEFAULT_MOTION_FADE_MS)}ms`
+  applyPlateInsets(viewport, node)
+  const track = document.createElement('div')
+  track.setAttribute(MOTION_PANE_TRACK_ATTRIBUTE, '')
+  track.style.transitionDuration = `${String(paneSlideMs(openMs))}ms`
+  const outSlide = document.createElement('div')
+  outSlide.setAttribute(MOTION_PANE_SLIDE_ATTRIBUTE, '')
+  for (const child of outgoing) outSlide.append(child)
+  const inSlide = document.createElement('div')
+  inSlide.setAttribute(MOTION_PANE_SLIDE_ATTRIBUTE, '')
+  for (const child of node.children) inSlide.append(child.cloneNode(true))
+  if (direction === 'forward') track.append(outSlide, inSlide)
+  else track.append(inSlide, outSlide)
+  track.setAttribute('data-depth', direction === 'forward' ? '0' : '1')
+  viewport.append(track)
+  const done = (): void => {
+    node.style.visibility = previous
+    viewport.remove()
+    snapshotPane(node)
+    lastLayout.set(node, { rect, origin: lastLayout.get(node)?.origin ?? resolveOrigin(node, rect) })
+  }
+  if (prefersReducedMotion()) {
+    track.setAttribute('data-depth', direction === 'forward' ? '1' : '0')
+    done()
+    return viewport
+  }
+  const onFade = (event: Event): void => {
+    const name = 'propertyName' in event ? String(event.propertyName) : ''
+    if (event.target !== viewport || name !== 'opacity') return
+    viewport.removeEventListener('transitionend', onFade)
+    done()
+  }
+  const onEnd = (event: Event): void => {
+    const name = 'propertyName' in event ? String(event.propertyName) : ''
+    if (event.target !== track || name !== 'transform') return
+    track.removeEventListener('transitionend', onEnd)
+    node.style.visibility = previous
+    afterPaint(frame, () => {
+      viewport.addEventListener('transitionend', onFade)
+      viewport.style.opacity = '0'
+    })
+  }
+  track.addEventListener('transitionend', onEnd)
+  afterPaint(frame, () => {
+    track.setAttribute('data-depth', direction === 'forward' ? '1' : '0')
+  })
+  return viewport
+}
+
+/**
  * Stamp the motion attribute, inject the ghost stylesheet, and observe opens.
  * @param options - reduced-motion, animate, and paint hooks.
  * @returns a disposer that removes the sheet, attribute, ghosts, and observer.
  */
 export function installMotion(
   options: MotionRuntimeOptions = {},
-): { dispose: () => void; write: (next: { motionOpenMs: number; motionCloseMs: number }) => void } {
+): { dispose: () => void; write: (next: { motionOpenMs: number; motionCloseMs: number; motionFadeMs: number }) => void } {
   /* v8 ignore next -- node client-tree boots have no document */
   if (typeof document === 'undefined') return { dispose: () => {}, write: () => {} }
   const style = document.createElement('style')
@@ -378,14 +538,44 @@ export function installMotion(
     ...options.measure === undefined ? {} : { measure: options.measure },
     openMs: options.openMs ?? DEFAULT_MOTION_OPEN_MS,
     closeMs: options.closeMs ?? DEFAULT_MOTION_CLOSE_MS,
+    fadeMs: options.fadeMs ?? DEFAULT_MOTION_FADE_MS,
   }
   let observer: MutationObserver | undefined
   const enters = new Map<HTMLElement, MotionEnterHandle>()
   if (!reduced && run !== undefined) {
+    const paneQueued = new Set<HTMLElement>()
+    const queuePane = (surface: HTMLElement): void => {
+      /* v8 ignore next -- same plate can mutate twice in one observer turn */
+      if (paneQueued.has(surface)) return
+      paneQueued.add(surface)
+      /* v8 ignore next -- installMotion always passes a frame in tests */
+      const frame = paint.frame ?? ((callback) => requestAnimationFrame(callback))
+      frame(() => {
+        paneQueued.delete(surface)
+        /* v8 ignore next -- the plate can unmount between the observer and the frame */
+        if (!surface.isConnected) return
+        const prev = lastPane.get(surface)
+        if (prev === undefined || !allowsPaneSlide(surface)) {
+          snapshotPane(surface)
+          return
+        }
+        const nextKind = paneKind(surface)
+        const nextSig = paneSignature(surface)
+        if (prev.signature === nextSig) return
+        if (prev.kind === 'other' && nextKind === 'root') {
+          snapshotPane(surface)
+          return
+        }
+        const direction = prev.kind === 'list' && nextKind === 'root' ? 'back' : 'forward'
+        playPaneSlide(surface, prev.clones, direction, paint)
+      })
+    }
     observer = new MutationObserver((records) => {
+      const addedSurfaces = new Set<HTMLElement>()
       for (const record of records) {
         for (const added of record.addedNodes) {
           for (const surface of surfacesIn(added)) {
+            addedSurfaces.add(surface)
             const handle = playMotionEnter(surface, run, paint)
             /* v8 ignore next -- added surfaces are parented */
             if (handle !== undefined) enters.set(surface, handle)
@@ -395,10 +585,18 @@ export function installMotion(
           for (const surface of surfacesIn(removed)) {
             enters.get(surface)?.cancel()
             enters.delete(surface)
+            lastPane.delete(surface)
             playMotionExit(surface, run, paint)
           }
         }
       }
+      const hosts = new Set<HTMLElement>()
+      for (const record of records) {
+        const host = enclosingSurface(record.target)
+        if (host === null || addedSurfaces.has(host) || !host.isConnected) continue
+        hosts.add(host)
+      }
+      for (const host of hosts) queuePane(host)
     })
     observer.observe(document.body, { childList: true, subtree: true })
   }
@@ -406,6 +604,7 @@ export function installMotion(
     write: (next) => {
       paint.openMs = next.motionOpenMs
       paint.closeMs = next.motionCloseMs
+      paint.fadeMs = next.motionFadeMs
     },
     dispose: () => {
       observer?.disconnect()
@@ -413,7 +612,7 @@ export function installMotion(
       enters.clear()
       style.remove()
       document.body.removeAttribute(MOTION_ATTRIBUTE)
-      document.querySelectorAll(`[${MOTION_ENTER_ATTRIBUTE}], [${MOTION_EXIT_ATTRIBUTE}]`).forEach((node) => {
+      document.querySelectorAll(`[${MOTION_ENTER_ATTRIBUTE}], [${MOTION_EXIT_ATTRIBUTE}], [${MOTION_PANE_ATTRIBUTE}]`).forEach((node) => {
         node.remove()
       })
     },

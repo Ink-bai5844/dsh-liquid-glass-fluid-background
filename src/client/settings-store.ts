@@ -8,7 +8,8 @@ import {
   DEFAULT_ABERRATION, DEFAULT_BLUR_PX, DEFAULT_CANVAS, DEFAULT_DISPLACE, DEFAULT_FLUID_COLOR_1,
   DEFAULT_FLUID_COLOR_2, DEFAULT_FLUID_COLOR_3, DEFAULT_FLUID_COLOR_4, DEFAULT_FLUID_ENABLED,
   DEFAULT_FLUID_PRESET, DEFAULT_FLUID_SPEED, DEFAULT_GAP_PX, DEFAULT_MOTION_CLOSE_MS,
-  DEFAULT_MOTION_ENABLED, DEFAULT_MOTION_OPEN_MS, DEFAULT_RADIUS_PX, DEFAULT_SATURATE_PCT,
+  DEFAULT_MOTION_ENABLED, DEFAULT_MOTION_FADE_MS, DEFAULT_MOTION_OPEN_MS, DEFAULT_RADIUS_PX,
+  DEFAULT_SATURATE_PCT,
   type GlassSettings,
 } from '../glass-settings.ts'
 
@@ -48,6 +49,7 @@ export function createLiquidGlassRowStore(): EngineStoreHandle<LiquidGlassRowSta
       motionEnabled: DEFAULT_MOTION_ENABLED,
       motionOpenMs: DEFAULT_MOTION_OPEN_MS,
       motionCloseMs: DEFAULT_MOTION_CLOSE_MS,
+      motionFadeMs: DEFAULT_MOTION_FADE_MS,
       revision: -1,
     }),
     actions: {
@@ -71,6 +73,7 @@ export function createLiquidGlassRowStore(): EngineStoreHandle<LiquidGlassRowSta
         d.motionEnabled = next.motionEnabled
         d.motionOpenMs = next.motionOpenMs
         d.motionCloseMs = next.motionCloseMs
+        d.motionFadeMs = next.motionFadeMs
         d.revision = revision
       },
     },

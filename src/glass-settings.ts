@@ -86,11 +86,17 @@ export const MOTION_OPEN_MS_FIELD = 'motionOpenMs'
 /** Field carrying close-animation duration in milliseconds. */
 export const MOTION_CLOSE_MS_FIELD = 'motionCloseMs'
 
+/** Field carrying fade-out duration after an open grow or pane slide settles. */
+export const MOTION_FADE_MS_FIELD = 'motionFadeMs'
+
 /** Default open-animation duration in milliseconds. */
 export const DEFAULT_MOTION_OPEN_MS = 160
 
 /** Default close-animation duration in milliseconds. */
 export const DEFAULT_MOTION_CLOSE_MS = 120
+
+/** Default fade-out duration in milliseconds. */
+export const DEFAULT_MOTION_FADE_MS = 120
 
 /** Shortest persistable motion duration in milliseconds. */
 export const MOTION_MS_MIN = 50
@@ -165,6 +171,8 @@ export interface GlassSettings {
   motionOpenMs: number
   /** Close-animation duration in milliseconds. */
   motionCloseMs: number
+  /** Fade-out duration in milliseconds after an open grow or pane slide settles. */
+  motionFadeMs: number
 }
 
 /** Durable liquid-glass schema; also the wire envelope the browser scope validates against. */
@@ -187,6 +195,7 @@ export const GlassSettingsSchema: z<GlassSettings> = z.object({
   [MOTION_ENABLED_FIELD]: z.boolean().default(DEFAULT_MOTION_ENABLED),
   [MOTION_OPEN_MS_FIELD]: z.number().min(MOTION_MS_MIN).max(MOTION_MS_MAX).default(DEFAULT_MOTION_OPEN_MS),
   [MOTION_CLOSE_MS_FIELD]: z.number().min(MOTION_MS_MIN).max(MOTION_MS_MAX).default(DEFAULT_MOTION_CLOSE_MS),
+  [MOTION_FADE_MS_FIELD]: z.number().min(MOTION_MS_MIN).max(MOTION_MS_MAX).default(DEFAULT_MOTION_FADE_MS),
 })
 
 /**
