@@ -60,8 +60,6 @@
     "@deepseek-ai/dsh-client-ui-theme": "*",
     "@deepseek-ai/dsh-host-webserver": "*",
     "@deepseek-ai/dsh-invariants": "*",
-    "@deepseek-ai/dsh-settings": "*",
-    "@deepseek-ai/schemastery": "*",
     "react": "^18.2.0"
   },
   "peerDependenciesMeta": {

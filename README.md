@@ -68,7 +68,7 @@ dsh plugin --profile web remove dsh-liquid-glass-fluid-background
 
 ## What it ships
 
-- Host half: settings namespace `ui-theme-liquid-glass` (glass tunables + fluid flags) and a tapIndex bootstrap that stamps `data-dsh-liquid-glass` before the client tree paints.
+- Host half: settings namespace `ui-theme-liquid-glass` (glass tunables + fluid flags) and a tapIndex bootstrap that stamps `data-dsh-liquid-glass` before the client tree paints. The published `lib/index.js` is self-contained, so `dsh plugin --profile web add .` (a `link:` checkout) can load without resolving `@deepseek-ai/dsh-settings` from the plugin directory.
 - Browser half: token overlay, frost stylesheet, SVG lens, and the Isolation WebGL (or CSS-gradient) canvas.
 
 Peer packages come from the dsh web profile. This bundle does not republish `@deepseek-ai/dsh-*`.

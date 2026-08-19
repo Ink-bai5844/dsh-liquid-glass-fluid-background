@@ -2,7 +2,6 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-host-webserver'
-import { settingsNamespace } from '@deepseek-ai/dsh-settings'
 import { injectBootGlass } from './boot-glass.ts'
 import {
   DEFAULT_ENABLED, GLASS_ENABLED_FIELD, GLASS_SETTINGS_NAMESPACE, GlassSettingsSchema,
@@ -16,7 +15,7 @@ export {
 } from './glass-settings.ts'
 export { GLASS_ATTRIBUTE } from './boot-glass.ts'
 
-const GLASS_NAMESPACE = settingsNamespace(GLASS_SETTINGS_NAMESPACE)
+const GLASS_NAMESPACE = GLASS_SETTINGS_NAMESPACE
 
 /** Read the registered overlay flag or use the schema default without a settings provider. */
 function readEnabled(ctx: Context): boolean {

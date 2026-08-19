@@ -68,7 +68,7 @@ dsh plugin --profile web remove dsh-liquid-glass-fluid-background
 
 ## 内容
 
-- Host 半：设置命名空间 `ui-theme-liquid-glass`（玻璃参数 + 流体开关），以及在客户端树绘制前写入 `data-dsh-liquid-glass` 的 tapIndex 引导。
+- Host 半：设置命名空间 `ui-theme-liquid-glass`（玻璃参数 + 流体开关），以及在客户端树绘制前写入 `data-dsh-liquid-glass` 的 tapIndex 引导。发布的 `lib/index.js` 自包含，因此 `dsh plugin --profile web add .`（`link:` 到 checkout）不必在插件目录里解析 `@deepseek-ai/dsh-settings`。
 - 浏览器半：token 叠加层、霜化样式、SVG 透镜，以及 Isolation WebGL（或 CSS 渐变）画布。
 
 `@deepseek-ai/dsh-*` 由 web profile 提供，本组合包不重新发布它们。
