@@ -361,6 +361,10 @@ ${under(`${sessionHeader} ${loc('tabs')}`)} {
   padding-left: 4px;
 }
 
+${under(loc('groupTitle'))} {
+  background: transparent;
+}
+
 ${under(center)} {
   overflow: hidden;
   background: transparent;
