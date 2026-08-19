@@ -8,7 +8,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type { LiquidGlassKey } from './locales.ts'
 import type { createLiquidGlassRowStore } from './settings-store.ts'
 import type { GlassSettings } from '../glass-settings.ts'
-import { FLUID_PRESETS } from '../glass-settings.ts'
+import { FLUID_PRESETS, MOTION_MS_MAX, MOTION_MS_MIN } from '../glass-settings.ts'
 import { DEFAULT_FLUID_COLORS, toColorInput } from './fluid-shader.ts'
 import css from './LiquidGlassRow.module.css'
 
@@ -146,6 +146,41 @@ function FluidTuners({
   )
 }
 
+function MotionTuners({
+  t,
+  setField,
+  openMs,
+  closeMs,
+}: {
+  t: LiquidGlassRowComponentProps['t']
+  setField: LiquidGlassRowInjected['setField']
+  openMs: number
+  closeMs: number
+}) {
+  const rows = [
+    { field: 'motionOpenMs' as const, label: 'motionOpen' as const, value: openMs },
+    { field: 'motionCloseMs' as const, label: 'motionClose' as const, value: closeMs },
+  ]
+  return (
+    <div className={css.tuners}>
+      {rows.map(row => (
+        <label key={row.field} className={css.tuner}>
+          <span className={css.tunerLabel}>{`${t(row.label)} ${String(row.value)}`}</span>
+          <input
+            type="range"
+            min={MOTION_MS_MIN}
+            max={MOTION_MS_MAX}
+            step={10}
+            value={row.value}
+            aria-label={t(row.label)}
+            onChange={(event) => { setField(row.field, Number(event.target.value)) }}
+          />
+        </label>
+      ))}
+    </div>
+  )
+}
+
 function GlassTuners({
   t,
   setField,
@@ -209,6 +244,9 @@ export function LiquidGlassRow({ t, setEnabled, setField, useStore }: LiquidGlas
   const fluidColor2 = useStore(s => s.fluidColor2)
   const fluidColor3 = useStore(s => s.fluidColor3)
   const fluidColor4 = useStore(s => s.fluidColor4)
+  const motionEnabled = useStore(s => s.motionEnabled)
+  const motionOpenMs = useStore(s => s.motionOpenMs)
+  const motionCloseMs = useStore(s => s.motionCloseMs)
   const values = { blurPx, saturatePct, displace, aberration, radiusPx, gapPx }
   return (
     <div className={css.block}>
@@ -234,6 +272,18 @@ export function LiquidGlassRow({ t, setEnabled, setField, useStore }: LiquidGlas
         color2={fluidColor2}
         color3={fluidColor3}
         color4={fluidColor4}
+      /> : null}
+      <SwitchRow
+        title={t('motionTitle')}
+        description={t('motionDescription')}
+        checked={motionEnabled}
+        onToggle={() => { setField('motionEnabled', !motionEnabled) }}
+      />
+      {motionEnabled ? <MotionTuners
+        t={t}
+        setField={setField}
+        openMs={motionOpenMs}
+        closeMs={motionCloseMs}
       /> : null}
     </div>
   )

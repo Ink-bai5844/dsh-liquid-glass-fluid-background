@@ -74,6 +74,30 @@ export const FLUID_COLOR_3_FIELD = 'fluidColor3'
 /** Field carrying fluid blend color 4. */
 export const FLUID_COLOR_4_FIELD = 'fluidColor4'
 
+/** Field carrying whether composer popover motion is on. Independent of `enabled`. */
+export const MOTION_ENABLED_FIELD = 'motionEnabled'
+
+/** Default composer popover motion state. */
+export const DEFAULT_MOTION_ENABLED = true
+
+/** Field carrying open-animation duration in milliseconds. */
+export const MOTION_OPEN_MS_FIELD = 'motionOpenMs'
+
+/** Field carrying close-animation duration in milliseconds. */
+export const MOTION_CLOSE_MS_FIELD = 'motionCloseMs'
+
+/** Default open-animation duration in milliseconds. */
+export const DEFAULT_MOTION_OPEN_MS = 160
+
+/** Default close-animation duration in milliseconds. */
+export const DEFAULT_MOTION_CLOSE_MS = 120
+
+/** Shortest persistable motion duration in milliseconds. */
+export const MOTION_MS_MIN = 50
+
+/** Longest persistable motion duration in milliseconds. */
+export const MOTION_MS_MAX = 600
+
 /** Default fluid backdrop state. */
 export const DEFAULT_FLUID_ENABLED = false
 
@@ -135,6 +159,12 @@ export interface GlassSettings {
   fluidColor3: string
   /** Fluid blend color 4. */
   fluidColor4: string
+  /** Whether composer menus and popovers use iOS-style scale/stretch motion. Independent of `enabled`. */
+  motionEnabled: boolean
+  /** Open-animation duration in milliseconds. */
+  motionOpenMs: number
+  /** Close-animation duration in milliseconds. */
+  motionCloseMs: number
 }
 
 /** Durable liquid-glass schema; also the wire envelope the browser scope validates against. */
@@ -154,6 +184,9 @@ export const GlassSettingsSchema: z<GlassSettings> = z.object({
   [FLUID_COLOR_2_FIELD]: z.string().max(32).default(DEFAULT_FLUID_COLOR_2),
   [FLUID_COLOR_3_FIELD]: z.string().max(32).default(DEFAULT_FLUID_COLOR_3),
   [FLUID_COLOR_4_FIELD]: z.string().max(32).default(DEFAULT_FLUID_COLOR_4),
+  [MOTION_ENABLED_FIELD]: z.boolean().default(DEFAULT_MOTION_ENABLED),
+  [MOTION_OPEN_MS_FIELD]: z.number().min(MOTION_MS_MIN).max(MOTION_MS_MAX).default(DEFAULT_MOTION_OPEN_MS),
+  [MOTION_CLOSE_MS_FIELD]: z.number().min(MOTION_MS_MIN).max(MOTION_MS_MAX).default(DEFAULT_MOTION_CLOSE_MS),
 })
 
 /**

@@ -48,7 +48,7 @@ Then start the web surface:
 dsh --profile web
 ```
 
-Open **Settings → General**. Turn on **Liquid Glass** and/or **Fluid background**. Fluid does not require glass. When both are on, fluid is the wallpaper.
+Open **Settings → General**. Turn on **Liquid Glass** and/or **Fluid background**. Fluid does not require glass. When both are on, fluid is the wallpaper. **Interaction motion** (on by default) plays an iOS-style squash-stretch on composer popovers and does not require Liquid Glass; Open / Close sliders set the durations.
 
 ![General settings: glass tuners and the fluid switch](images/插件设置页.png)
 

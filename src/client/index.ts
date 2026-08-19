@@ -2,9 +2,10 @@
  * Browser half of the liquid-glass overlay and the Isolation-style fluid
  * backdrop. `enabled` stacks the glass token layer, stylesheet, and SVG lens.
  * `fluidEnabled` independently mounts a fullscreen WebGL (or CSS-gradient)
- * canvas. Disposing each effect reverses its writes. Light/dark switches
- * reuse the same `{ light, dark }` token pairs — the glass layer is not
- * re-sent.
+ * canvas. `motionEnabled` independently plays iOS-style scale/stretch on
+ * composer menus and popovers. Disposing each effect reverses its writes.
+ * Light/dark switches reuse the same `{ light, dark }` token pairs — the
+ * glass layer is not re-sent.
  */
 import type { BoundActions } from '@deepseek-ai/dsh-client-ui-slots'
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
@@ -26,6 +27,7 @@ import {
 import { clearGlassAppearance, writeGlassAppearance } from './glass-appearance.ts'
 import { GLASS_STYLE_ATTRIBUTE, GLASS_STYLES } from './glass-styles.ts'
 import { installFluidBackdrop } from './fluid-runtime.ts'
+import { installMotion } from './motion-runtime.ts'
 import {
   GLASS_ENABLED_FIELD, GLASS_SETTINGS_NAMESPACE, resolveGlassSettings, type GlassSettings,
 } from '../glass-settings.ts'
@@ -35,6 +37,7 @@ export type { LiquidGlassRowState } from './settings-store.ts'
 export type { LiquidGlassKey } from './locales.ts'
 export type { FluidPreset, GlassSettings } from '../glass-settings.ts'
 export { FLUID_ATTRIBUTE } from './fluid-runtime.ts'
+export { MOTION_ATTRIBUTE, MOTION_ENTER_ATTRIBUTE, MOTION_EXIT_ATTRIBUTE } from './motion-runtime.ts'
 
 /** Namespace owning this feature's settings-row copy. */
 export const SETTINGS_NS = 'settings.liquidGlass'
@@ -105,6 +108,8 @@ export function apply(ctx: ClientContext): void {
   let writeAppearance: ((next: GlassSettings) => void) | undefined
   let disposeFluid: (() => unknown) | undefined
   let writeFluid: ((next: GlassSettings) => void) | undefined
+  let disposeMotion: (() => unknown) | undefined
+  let writeMotion: ((next: GlassSettings) => void) | undefined
 
   const setOverlay = (section: GlassSettings): void => {
     if (section.enabled) {
@@ -138,6 +143,25 @@ export function apply(ctx: ClientContext): void {
     writeFluid = undefined
   }
 
+  const setMotion = (section: GlassSettings): void => {
+    if (section.motionEnabled) {
+      disposeMotion ??= ctx.effect(() => {
+        const motion = installMotion()
+        writeMotion = motion.write
+        return () => {
+          writeMotion = undefined
+          motion.dispose()
+        }
+      }, 'ui-theme-liquid-glass: interaction motion')
+      writeMotion?.(section)
+      return
+    }
+    if (disposeMotion === undefined) return
+    disposeMotion()
+    disposeMotion = undefined
+    writeMotion = undefined
+  }
+
   const adopt = (): void => {
     const section = host.getSnapshot().value
     if (section === undefined) return
@@ -146,6 +170,7 @@ export function apply(ctx: ClientContext): void {
     bound?.sync(resolved, revision)
     setOverlay(resolved)
     setFluid(resolved)
+    setMotion(resolved)
   }
 
   ctx.effect(() => {
@@ -155,6 +180,7 @@ export function apply(ctx: ClientContext): void {
       unsub()
       setOverlay(resolveGlassSettings({ enabled: false }))
       setFluid(resolveGlassSettings({ fluidEnabled: false }))
+      setMotion(resolveGlassSettings({ motionEnabled: false }))
     }
   }, 'ui-theme-liquid-glass: settings scope adoption')
 

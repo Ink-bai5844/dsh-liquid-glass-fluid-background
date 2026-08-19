@@ -26,6 +26,10 @@ export const zh = {
   'color2': '颜色 2',
   'color3': '颜色 3',
   'color4': '颜色 4',
+  'motionTitle': '交互动画',
+  'motionDescription': '按钮弹窗以 iOS 式缩放拉伸展开和缩回；关闭后立即还原。不依赖液态玻璃。',
+  'motionOpen': '展开',
+  'motionClose': '收回',
 } satisfies Record<string, string>
 
 /** The settings.liquidGlass namespace key union. */
@@ -57,4 +61,8 @@ export const en = {
   'color2': 'Color 2',
   'color3': 'Color 3',
   'color4': 'Color 4',
+  'motionTitle': 'Interaction motion',
+  'motionDescription': 'Menus and popovers scale and stretch open and closed like iOS. Turning it off restores the original timing immediately. It does not require Liquid Glass.',
+  'motionOpen': 'Open',
+  'motionClose': 'Close',
 } satisfies Record<LiquidGlassKey, string>
