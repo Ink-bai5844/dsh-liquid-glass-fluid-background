@@ -37,6 +37,11 @@ const sidebar = loc('sidebarCol')
 const details = loc('detailsCol')
 const center = loc('centerCol')
 const composerCard = `:is(${loc('composerSeat')} ${loc('card')}, [data-composer-card])`
+const sendButton = `${composerCard} ${loc('primary')}`
+const commandButton = `${composerCard} ${loc('add')}`
+const composerChips = `:is(${sendButton}, ${commandButton})`
+const previewBadge = loc('previewBadge')
+const glassPills = `:is(${sendButton}, ${commandButton}, ${previewBadge})`
 const dialog = loc('dialog')
 const settingsPanel = `${loc('panel')}:has(${loc('navCell')})`
 const portal = loc('portal')
@@ -93,6 +98,7 @@ const WARP_BEFORE = [
   goalBar,
   todoCard,
   dropdown,
+  glassPills,
 ].join(',\n  ')
 
 /** Small plates and the settings panel take SVG displacement. The sidebar
@@ -361,9 +367,23 @@ ${under(`${sessionHeader} ${loc('tabs')}`)} {
   padding-left: 4px;
 }
 
+${under(loc('tabActive'))} {
+  color: var(--dsw-alias-label-primary);
+}
+
+${under(`${loc('tabActive')}::after`)} {
+  background: var(--dsw-alias-label-primary);
+}
+
+${under(loc('folderActive'))} {
+  color: var(--dsw-alias-label-primary);
+}
+
 ${under(loc('groupTitle'))} {
   background: transparent;
 }
+
+
 
 ${under(center)} {
   overflow: hidden;
@@ -399,6 +419,51 @@ ${under(composerCard)} {
 ${under(composerCard)}::before {
   -webkit-backdrop-filter: ${COMPOSER_WARP};
   backdrop-filter: ${COMPOSER_WARP};
+}
+
+${under(glassPills)} {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  background-image: ${ILLUMINATION};
+  background-blend-mode: soft-light, screen;
+  color: var(--dsw-alias-label-primary);
+  border-color: rgba(255, 255, 255, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 1px 0 0 rgba(255, 255, 255, 0.28),
+    inset -1px 0 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.38),
+    inset 0 10px 16px -10px rgba(255, 255, 255, 0.42);
+}
+
+${under(sendButton)} {
+  transform: none;
+  top: -2px;
+}
+
+${under(`${composerChips}:hover:not(:disabled)`)} {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+body[data-dsh-liquid-glass][data-ds-dark-theme] ${glassPills} {
+  background-image:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 28%),
+    linear-gradient(345deg, rgba(120, 170, 255, 0.10) 0%, rgba(255, 255, 255, 0) 34%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 1px 0 0 rgba(255, 255, 255, 0.10),
+    inset -1px 0 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.16),
+    inset 0 10px 16px -10px rgba(255, 255, 255, 0.14);
+}
+
+body[data-dsh-liquid-glass][data-ds-dark-theme] ${composerChips}:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.10);
 }
 
 ${under(bubble)} {
