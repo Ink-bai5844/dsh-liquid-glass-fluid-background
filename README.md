@@ -50,7 +50,9 @@ dsh --profile web
 
 Open **Settings → General**. Turn on **Liquid Glass** and/or **Fluid background**. Fluid does not require glass. When both are on, fluid is the wallpaper. **Interaction motion** (on by default) plays an iOS-style squash-stretch on composer popovers and the settings dialog and does not require Liquid Glass; Open / Close / Fade sliders set the durations.
 
-![General settings: glass tuners and the fluid switch](images/插件设置页.png)
+![General settings: liquid-glass tuners and fluid background](images/插件设置页1.png)
+
+![General settings: interaction motion sliders](images/插件设置页2.png)
 
 Fluid presets (`silk`, `hsv`, `wave`, `aurora`, `plasma`, `smoke`):
 
